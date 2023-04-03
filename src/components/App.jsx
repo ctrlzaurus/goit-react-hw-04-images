@@ -46,11 +46,20 @@ class App extends Component {
       this.setState({isBtn: false, isLoading: true});
 
       ImageAPI.searchPixabayApi(query, page).then((response) => {
+        console.log(response);
+        if (response?.status === 400) {
+          this.setState({isLoading: false, isBtn: false});
+          throw new Error('Oh, noooooooooooooooooooo');
+        }
         this.setState(({ images }) => ({
-          images: [...images, ...response.hits],
+          images: [...images, ...response?.hits],
           isBtn: true,
           isLoading: false,
         }));
+        
+      }).catch(error => {
+        this.setState({isLoading: false, isBtn: false});
+        return toast.error(error.message);
       });
     };
   };

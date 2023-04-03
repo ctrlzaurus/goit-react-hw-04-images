@@ -1,5 +1,5 @@
 .galleryItem {
     list-style: none;
     width: 400px;
-    
+    cursor: pointer;
 }
