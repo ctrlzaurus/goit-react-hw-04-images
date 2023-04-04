@@ -56,6 +56,9 @@ class App extends Component {
           isBtn: true,
           isLoading: false,
         }));
+        if (response.hits <= 12) {
+          this.setState({isBtn: false});
+        }
         
       }).catch(error => {
         this.setState({isLoading: false, isBtn: false});
