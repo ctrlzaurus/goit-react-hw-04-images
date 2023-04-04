@@ -21,13 +21,14 @@ class App extends Component {
     isBtn: false,
     isLoading: false,
     modalData: null,
+    totalHits: 0,
   };
 
   componentDidUpdate(prevProps, prevState) {
     const {query, page} = this.state;
 
     if (prevState.query !== query) {
-      this.setState({images: [], isBtn: false, isLoading: true});
+      this.setState({images: [], isBtn: false, isLoading: true, totalHits: 0});
 
       ImageAPI.searchPixabayApi(query, page).then((response) => {
         if (response.hits.length === 0) {
@@ -39,6 +40,7 @@ class App extends Component {
           images: [...images, ...response.hits],
           isBtn: true,
           isLoading: false,
+          totalHits: response.totalHits
         }));
       });
     };
@@ -84,7 +86,7 @@ class App extends Component {
   };
 
   render() {
-    const {images, isBtn, isLoading, modalData} = this.state;
+    const {images, isBtn, isLoading, modalData, totalHits} = this.state;
 
     return(
       <>
@@ -92,7 +94,7 @@ class App extends Component {
         <ImageGallery 
           images={images}
           openModal={this.openModal}/>
-        {isBtn && <Button onClick={this.nextPageBtn}/>}
+        {isBtn && totalHits !== images.length && <Button onClick={this.nextPageBtn}/>}
         <ToastContainer />
         {isLoading && <Hearts 
           height="80"
