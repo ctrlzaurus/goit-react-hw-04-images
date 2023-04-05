@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import ImageAPI from '../services/pixabay';
 
@@ -20,20 +20,17 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [modalData, setModalData] = useState(null);
   const [totalHits, setTotalHits] = useState(0);
-  const [isFirst, setIsFirst] = useState(true);
-  const [submitQuery, setSubmitQuery] = useState('');
+  // const [isFirst, setIsFirst] = useState(true);
+  // const [submitQuery, setSubmitQuery] = useState('');
 
   useEffect(() => {
-    if(isFirst) {
-     setIsFirst(false);
-     return;
-    }
+    // if (query !== submitQuery) {
+      setPage(1);
+    //   setQuery(submitQuery);
+    // }
+  }, [query]);
 
-    if(submitQuery !== query) {
-    setTotalHits(0);
-    setImages([]);
-    }
-
+  const logicRe = useCallback(() => {
     setIsBtn(false);
     setIsLoading(true);
 
@@ -49,11 +46,18 @@ function App() {
           throw new Error('Oh, noooooooooooooooooooo');
         }
 
-        setImages((prev) => ([...prev, ...response?.hits]));
+        setImages(p => {
+          if (page === 1) {
+            return response.hits;
+          } else {
+            return [...p, ...response.hits];
+          }
+        });
+
         setIsBtn(true);
         setIsLoading(false);
         setTotalHits(response.totalHits);
-        setSubmitQuery(query);
+        // setSubmitQuery(query);
 
         if (response.hits <= 12) {
           this.setState({isBtn: false});
@@ -66,77 +70,11 @@ function App() {
       });
   },[query, page]);
 
-  // useEffect(() => {
-  //   setIsBtn(false);
-  //   setIsLoading(true);
-   
-  //     ImageAPI.searchPixabayApi(query, page).then((response) => {
-
-  //       if (response?.status === 400) {
-  //         setIsBtn(false);
-  //         setIsLoading(false);
-  //         throw new Error('Oh, noooooooooooooooooooo');
-  //       }
-  //       setImages((prev) => ([...prev, ...response?.hits]));
-  //       setIsBtn(true);
-  //       setIsLoading(false);
-
-  //       if (response.hits <= 12) {
-  //         this.setState({isBtn: false});
-  //       }
-        
-  //     }).catch(error => {
-  //       setIsBtn(false);
-  //       setIsLoading(false);
-  //       return toast.error(error.message);
-  //     });
-  // },[page])
-
-  // componentDidUpdate(prevProps, prevState) {
-    // const {query, page} = this.state;
-
-    // if (prevState.query !== query) {
-    //   this.setState({images: [], isBtn: false, isLoading: true, totalHits: 0});
-
-    //   ImageAPI.searchPixabayApi(query, page).then((response) => {
-    //     if (response.hits.length === 0) {
-    //       this.setState({isLoading: false});
-    //       return toast.error('Wasted!');
-    //     }
-        
-    //     this.setState(({ images }) => ({
-    //       images: [...images, ...response.hits],
-    //       isBtn: true,
-    //       isLoading: false,
-    //       totalHits: response.totalHits
-    //     }));
-    //   });
-    // };
-
-    // if (prevState.page !== page) {
-      // this.setState({isBtn: false, isLoading: true});
-
-      // ImageAPI.searchPixabayApi(query, page).then((response) => {
-      //   console.log(response);
-      //   if (response?.status === 400) {
-      //     this.setState({isLoading: false, isBtn: false});
-      //     throw new Error('Oh, noooooooooooooooooooo');
-      //   }
-      //   this.setState(({ images }) => ({
-      //     images: [...images, ...response?.hits],
-      //     isBtn: true,
-      //     isLoading: false,
-      //   }));
-      //   if (response.hits <= 12) {
-      //     this.setState({isBtn: false});
-      //   }
-        
-      // }).catch(error => {
-      //   this.setState({isLoading: false, isBtn: false});
-      //   return toast.error(error.message);
-      // });
-  //   };
-  // };
+  useEffect(() => {
+    if (query !== '' || page !== 1) {
+      logicRe();
+    }
+  }, [query, page, logicRe]);
 
   const handlerSubmitSearchbar = (value) => {
     setQuery(value);
